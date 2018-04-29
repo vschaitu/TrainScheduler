@@ -21,93 +21,74 @@ var database = firebase.database();
 
 
 
-// Initial Values
-var initialBid;
-var initialBidder = "No one :-(";
-var highPrice = initialBid;
-var highBidder = initialBidder;
-var dbObj;
-
-// --------------------------------------------------------------
-
-//  At the page load and subsequent value changes, get a snapshot of the stored data.
-// This function allows you to update your page in real-time when the firebase database changes.
-database.ref().on("value", function (dbval) {
-    dbObj = dbval.val();
-    console.log(dbObj);
-    initialBid = dbObj.price;
-    console.log(initialBid);
-    initialBidder = dbObj.name;
-    $('#highest-bidder').text(dbObj.name);
-    $('#highest-price').text(dbObj.price);
-}, function (errorObject) {
-    console.log("The read failed: " + errorObject.code);
-});
-
-// If Firebase has a highPrice and highBidder stored (first case)
-$(document).on("click", '#submit-bid', function (event) {
+// 2. Button for adding trains
+$("#add-train-btn").on("click", function(event) {
     event.preventDefault();
-    console.log(initialBid);
-    if ($('#bidder-price').val() > initialBid) {
-        database.ref().set({
-            'name': $('#bidder-name').val(),
-            'price': $('#bidder-price').val()
-        });
-    }
-    $('#bidder-name').val("");
-    $('#bidder-price').val("");
-});
-
-// Set the variables for highBidder/highPrice equal to the stored values in firebase.
-// highPrice = ...
-// highBidder = ...
-
-
-// Change the HTML to reflect the stored values
-
-
-
-// Print the data to the console.
-
-
-// Else Firebase doesn't have a highPrice/highBidder, so use the initial local values.
-
-
-// Change the HTML to reflect the initial values
-
-
-// Print the data to the console.
-
-
-
-
-// --------------------------------------------------------------
-
-// Whenever a user clicks the submit-bid button
-
-// prevent form from submitting with event.preventDefault() or returning false
-
-// Get the input values
-
-
-// Log the Bidder and Price (Even if not the highest)
-
-
-// If Then statements to compare against previous high bidder
-
-
-// Alert that they are High Bidder
-
-
-// Save the new price in Firebase
-
-
-// Log the new High Price
-
-
-// Store the new high price and bidder name as a local variable (could have also used the firebase variable)
-
-
-// Change the HTML to reflect the new high price and bidder
-
-// Else tell user their bid was too low via alert
+  
+    // Grabs user input
+    var trainName = $("#train-name-input").val().trim();
+    var trainDestination = $("#destination-input").val().trim();
+    var trainStarttime = moment($("#time-input").val().trim(), "HH:MM").format("X");
+    var empRate = $("#frequency-input").val().trim();
+  
+    // Creates local "temporary" object for holding employee data
+    var newEmp = {
+      name: empName,
+      role: empRole,
+      start: empStart,
+      rate: empRate
+    };
+  
+    // Uploads employee data to the database
+    database.ref().push(newEmp);
+  
+    // Logs everything to console
+    console.log(newEmp.name);
+    console.log(newEmp.role);
+    console.log(newEmp.start);
+    console.log(newEmp.rate);
+  
+    // Alert
+    alert("Employee successfully added");
+  
+    // Clears all of the text-boxes
+    $("#employee-name-input").val("");
+    $("#role-input").val("");
+    $("#start-input").val("");
+    $("#rate-input").val("");
+  });
+  
+  // 3. Create Firebase event for adding employee to the database and a row in the html when a user adds an entry
+  database.ref().on("child_added", function(childSnapshot, prevChildKey) {
+  
+    console.log(childSnapshot.val());
+  
+    // Store everything into a variable.
+    var empName = childSnapshot.val().name;
+    var empRole = childSnapshot.val().role;
+    var empStart = childSnapshot.val().start;
+    var empRate = childSnapshot.val().rate;
+  
+    // Employee Info
+    console.log(empName);
+    console.log(empRole);
+    console.log(empStart);
+    console.log(empRate);
+  
+    // Prettify the employee start
+    var empStartPretty = moment.unix(empStart).format("MM/DD/YY");
+  
+    // Calculate the months worked using hardcore math
+    // To calculate the months worked
+    var empMonths = moment().diff(moment(empStart, "X"), "months");
+    console.log(empMonths);
+  
+    // Calculate the total billed rate
+    var empBilled = empMonths * empRate;
+    console.log(empBilled);
+  
+    // Add each train's data into the table
+    $("#employee-table > tbody").append("<tr><td>" + empName + "</td><td>" + empRole + "</td><td>" +
+    empStartPretty + "</td><td>" + empMonths + "</td><td>" + empRate + "</td><td>" + empBilled + "</td></tr>");
+  });
+  
