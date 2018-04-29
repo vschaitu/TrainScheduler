@@ -15,79 +15,87 @@ firebase.initializeApp(config);
 
 // Assign the reference to the database to a variable named 'database'
 var database = firebase.database();
-console.log("hi",database);
+console.log("hi", database);
 
 
 
 // 2. Button for adding trains
-$("#add-train-btn").on("click", function(event) {
+$("#add-train-btn").on("click", function (event) {
     event.preventDefault();
-  
+
     // Grabs user input
     var trainName = $("#train-name-input").val().trim();
     var trainDestination = $("#destination-input").val().trim();
     var trainStarttime = $("#time-input").val().trim();
     var trainFrequency = $("#frequency-input").val().trim();
-  
+
     // Creates local "temporary" object for holding employee data
     var newTrain = {
-      name: trainName,
-      destination: trainDestination,
-      starttime: trainStarttime,
-      frequency: trainFrequency
+        name: trainName,
+        destination: trainDestination,
+        starttime: trainStarttime,
+        frequency: trainFrequency
     };
-  
+
     // Uploads employee data to the database
     database.ref().push(newTrain);
-  
-    // Logs everything to console
-    console.log(newTrain.name);
-    console.log(newTrain.destination);
-    console.log(newTrain.start);
-    console.log(newTrain.frequency);
-  
+
     // Alert
     alert("Train Info successfully added");
-  
+
     // Clears all of the text-boxes
     $("#train-name-input").val("");
     $("#destination-input").val("");
     $("#start-input").val("");
     $("#frequency-input").val("");
-  });
-  
-  // 3. Create Firebase event for adding train to the database and a row in the html when a user adds an entry
-  database.ref().on("child_added", function(childSnapshot, prevChildKey) {
-  
+});
+
+// 3. Create Firebase event for adding train to the database and a row in the html when a user adds an entry
+database.ref().on("child_added", function (childSnapshot, prevChildKey) {
+
     console.log(childSnapshot.val());
-  
+
     // Store everything into a variable.
     var trainName = childSnapshot.val().name;
     var destination = childSnapshot.val().destination;
     var starttime = childSnapshot.val().starttime;
     var frequency = childSnapshot.val().frequency;
-    var minaway = "0";
-  
-    // Train Info
-    console.log(trainName);
-    console.log(destination);
-    console.log(starttime);
-    console.log(frequency);
-  
-    // // Prettify the employee start
-    // var empStartPretty = moment.unix(empStart).format("MM/DD/YY");
-  
-    // // Calculate the months worked using hardcore math
-    // // To calculate the months worked
-    // var empMonths = moment().diff(moment(empStart, "X"), "months");
-    // console.log(empMonths);
-  
-    // // Calculate the total billed rate
-    // var empBilled = empMonths * empRate;
-    // console.log(empBilled);
-  
+    var minaway;
+    var nextTime;
+
+    // Convert to seconds
+    var freq = frequency * 60;
+
+    // get current time
+    var now = moment();
+    var unixNow = moment(now).format("X");
+
+    // From start time check the time of the next train
+    var startval = moment().format("MM/DD/YY")+" " +starttime;
+    var fmt = moment(startval,"MM/DD/YY H:mm");
+    var timeNow = moment(fmt).format("X")
+
+    // find the unix time diff between start time of train with curret time of day
+    var dif = (timeNow - unixNow);
+
+    // Check if time past the start time of train in a day get next time by adding freqnency factor
+    if (dif < 0) {
+        dif = dif * -1;
+        timeNow = parseInt(timeNow) + ((parseInt(dif / freq) + 1) * freq);
+        console.log(timeNow);
+        dif = (timeNow - unixNow);
+        remin = parseInt(dif / 60);
+        console.log("Min Away:", remin);
+        console.log("Next Arrival", moment.unix(timeNow).format("H:mm"));
+    };
+
+    var remin = parseInt(dif / 60);
+
+    // Final remaining time in minutes & next train time
+    minaway = remin;
+    nextTime = moment.unix(timeNow).format("H:mm A");
+
     // Add each train's data into the table
     $("#train-table > tbody").append("<tr><td>" + trainName + "</td><td>" + destination + "</td><td>" +
-    frequency + "</td><td>" + starttime + "</td><td>" + minaway + "</td></tr>");
-  });
-  
+        frequency + "</td><td>" + nextTime + "</td><td>" + minaway + "</td></tr>");
+});
