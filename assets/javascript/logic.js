@@ -1,6 +1,4 @@
 // Initialize Firebase
-// Make sure to match the configuration to the script version number in the HTML
-// (Ex. 3.0 != 3.7.0)
 
 var config = {
     apiKey: "AIzaSyCPEbyAsvYzBwvORtniXqMYVE9VcGhgaIA",
@@ -15,11 +13,9 @@ firebase.initializeApp(config);
 
 // Assign the reference to the database to a variable named 'database'
 var database = firebase.database();
-console.log("hi", database);
 
 
-
-// 2. Button for adding trains
+//Button for adding trains
 $("#add-train-btn").on("click", function (event) {
     event.preventDefault();
 
@@ -53,7 +49,6 @@ $("#add-train-btn").on("click", function (event) {
 // 3. Create Firebase event for adding train to the database and a row in the html when a user adds an entry
 database.ref().on("child_added", function (childSnapshot, prevChildKey) {
 
-    console.log(childSnapshot.val());
 
     // Store everything into a variable.
     var trainName = childSnapshot.val().name;
@@ -82,11 +77,8 @@ database.ref().on("child_added", function (childSnapshot, prevChildKey) {
     if (dif < 0) {
         dif = dif * -1;
         timeNow = parseInt(timeNow) + ((parseInt(dif / freq) + 1) * freq);
-        console.log(timeNow);
         dif = (timeNow - unixNow);
         remin = parseInt(dif / 60);
-        console.log("Min Away:", remin);
-        console.log("Next Arrival", moment.unix(timeNow).format("H:mm"));
     };
 
     var remin = parseInt(dif / 60);
