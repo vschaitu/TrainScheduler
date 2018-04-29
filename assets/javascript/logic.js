@@ -23,7 +23,38 @@ $("#add-train-btn").on("click", function (event) {
     var trainName = $("#train-name-input").val().trim();
     var trainDestination = $("#destination-input").val().trim();
     var trainStarttime = $("#time-input").val().trim();
-    var trainFrequency = $("#frequency-input").val().trim();
+    var trainFrequency = parseInt($("#frequency-input").val().trim());
+    
+    // Check train name entered
+    if (trainName === "") {
+        alert("Must enter Train Name!");
+        console.log("hi");
+        return false;
+    }
+
+    // Check destination  entered
+    if (trainDestination === "") {
+        alert("Must enter Destination!");
+        return false;
+    }
+
+    // Check frequency  entered
+    if (isNaN(trainFrequency) || (trainFrequency > 240)) {
+        alert("Invalid frequency or more than 4hrs!");
+        return false;
+    }
+
+    // Check start time entered is valid
+    if (moment(trainStarttime, "H:mm", true).isValid()) {
+
+    } else {
+        alert("Invalid Start time of Train!");
+        return false;
+    };
+
+
+
+
 
     // Creates local "temporary" object for holding employee data
     var newTrain = {
@@ -66,8 +97,8 @@ database.ref().on("child_added", function (childSnapshot, prevChildKey) {
     var unixNow = moment(now).format("X");
 
     // From start time check the time of the next train
-    var startval = moment().format("MM/DD/YY")+" " +starttime;
-    var fmt = moment(startval,"MM/DD/YY H:mm");
+    var startval = moment().format("MM/DD/YY") + " " + starttime;
+    var fmt = moment(startval, "MM/DD/YY H:mm");
     var timeNow = moment(fmt).format("X")
 
     // find the unix time diff between start time of train with curret time of day
@@ -85,7 +116,7 @@ database.ref().on("child_added", function (childSnapshot, prevChildKey) {
 
     // Final remaining time in minutes & next train time
     minaway = remin;
-    nextTime = moment.unix(timeNow).format("H:mm A");
+    nextTime = moment.unix(timeNow).format("h:mm A");
 
     // Add each train's data into the table
     $("#train-table > tbody").append("<tr><td>" + trainName + "</td><td>" + destination + "</td><td>" +
