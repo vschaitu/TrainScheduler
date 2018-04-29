@@ -14,10 +14,8 @@ firebase.initializeApp(config);
 
 
 // Assign the reference to the database to a variable named 'database'
-// var database = ...
-
-
 var database = firebase.database();
+console.log("hi",database);
 
 
 
@@ -28,67 +26,68 @@ $("#add-train-btn").on("click", function(event) {
     // Grabs user input
     var trainName = $("#train-name-input").val().trim();
     var trainDestination = $("#destination-input").val().trim();
-    var trainStarttime = moment($("#time-input").val().trim(), "HH:MM").format("X");
-    var empRate = $("#frequency-input").val().trim();
+    var trainStarttime = $("#time-input").val().trim();
+    var trainFrequency = $("#frequency-input").val().trim();
   
     // Creates local "temporary" object for holding employee data
-    var newEmp = {
-      name: empName,
-      role: empRole,
-      start: empStart,
-      rate: empRate
+    var newTrain = {
+      name: trainName,
+      destination: trainDestination,
+      starttime: trainStarttime,
+      frequency: trainFrequency
     };
   
     // Uploads employee data to the database
-    database.ref().push(newEmp);
+    database.ref().push(newTrain);
   
     // Logs everything to console
-    console.log(newEmp.name);
-    console.log(newEmp.role);
-    console.log(newEmp.start);
-    console.log(newEmp.rate);
+    console.log(newTrain.name);
+    console.log(newTrain.destination);
+    console.log(newTrain.start);
+    console.log(newTrain.frequency);
   
     // Alert
-    alert("Employee successfully added");
+    alert("Train Info successfully added");
   
     // Clears all of the text-boxes
-    $("#employee-name-input").val("");
-    $("#role-input").val("");
+    $("#train-name-input").val("");
+    $("#destination-input").val("");
     $("#start-input").val("");
-    $("#rate-input").val("");
+    $("#frequency-input").val("");
   });
   
-  // 3. Create Firebase event for adding employee to the database and a row in the html when a user adds an entry
+  // 3. Create Firebase event for adding train to the database and a row in the html when a user adds an entry
   database.ref().on("child_added", function(childSnapshot, prevChildKey) {
   
     console.log(childSnapshot.val());
   
     // Store everything into a variable.
-    var empName = childSnapshot.val().name;
-    var empRole = childSnapshot.val().role;
-    var empStart = childSnapshot.val().start;
-    var empRate = childSnapshot.val().rate;
+    var trainName = childSnapshot.val().name;
+    var destination = childSnapshot.val().destination;
+    var starttime = childSnapshot.val().starttime;
+    var frequency = childSnapshot.val().frequency;
+    var minaway = "0";
   
-    // Employee Info
-    console.log(empName);
-    console.log(empRole);
-    console.log(empStart);
-    console.log(empRate);
+    // Train Info
+    console.log(trainName);
+    console.log(destination);
+    console.log(starttime);
+    console.log(frequency);
   
-    // Prettify the employee start
-    var empStartPretty = moment.unix(empStart).format("MM/DD/YY");
+    // // Prettify the employee start
+    // var empStartPretty = moment.unix(empStart).format("MM/DD/YY");
   
-    // Calculate the months worked using hardcore math
-    // To calculate the months worked
-    var empMonths = moment().diff(moment(empStart, "X"), "months");
-    console.log(empMonths);
+    // // Calculate the months worked using hardcore math
+    // // To calculate the months worked
+    // var empMonths = moment().diff(moment(empStart, "X"), "months");
+    // console.log(empMonths);
   
-    // Calculate the total billed rate
-    var empBilled = empMonths * empRate;
-    console.log(empBilled);
+    // // Calculate the total billed rate
+    // var empBilled = empMonths * empRate;
+    // console.log(empBilled);
   
     // Add each train's data into the table
-    $("#employee-table > tbody").append("<tr><td>" + empName + "</td><td>" + empRole + "</td><td>" +
-    empStartPretty + "</td><td>" + empMonths + "</td><td>" + empRate + "</td><td>" + empBilled + "</td></tr>");
+    $("#train-table > tbody").append("<tr><td>" + trainName + "</td><td>" + destination + "</td><td>" +
+    frequency + "</td><td>" + starttime + "</td><td>" + minaway + "</td></tr>");
   });
   
